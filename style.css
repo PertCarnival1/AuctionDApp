@@ -1,0 +1,12 @@
+* { box-sizing: border-box; }
+body { font-family: Arial, sans-serif; background-color: #f4f6f9; color: #222; max-width: 750px; margin: 40px auto; padding: 20px; line-height: 1.6; }
+h1 { text-align: center; color: #23395d; }
+h2 { color: #23395d; margin-bottom: 10px; }
+button { background-color: #2563eb; color: white; border: none; border-radius: 5px; padding: 10px 16px; margin: 5px 5px 5px 0; cursor: pointer; font-size: 14px; }
+button:hover { background-color: #1d4ed8; }
+button:disabled { background-color: #999; cursor: not-allowed; }
+input { padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; width: 220px; }
+hr { border: none; border-top: 1px solid #ddd; margin: 25px 0; }
+#walletAddress, #highestBidder { overflow-wrap: anywhere; }
+#message { font-weight: bold; }
+span { font-weight: 600; }
