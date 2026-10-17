@@ -4,13 +4,13 @@ A basic auction application built using Solidity, Ganache, MetaMask and Ethers.j
 
 I built this as part of my Blockchain Technology assignment. The main focus was the smart contract and testing its rules; the frontend is a simple HTML/CSS/JavaScript page for interacting with it.
 
-## Why use a blockchain?
+## 1. Problem addressed by the DApp
 
 In a regular online auction, the website operator controls the bids and payments. Here, the smart contract holds the ETH being bid and enforces the auction rules. A seller cannot withdraw the winning amount while bidding is open, and an outbid participant can claim their refund directly from the contract.
 
 The contract records who has the highest bid and prevents invalid bids or repeated withdrawals. It doesn't handle delivery of the item, so that part would still have to happen outside the DApp.
 
-## Features
+### Features
 
 - The seller deploys an auction for an item with a starting price.
 - Anyone except the seller can bid, provided their bid is higher than the previous bid.
@@ -21,35 +21,7 @@ The contract records who has the highest bid and prevents invalid bids or repeat
 
 This version supports **one auction per contract deployment**. It uses test ETH only.
 
-## Tools used
-
-| Tool | Use |
-|---|---|
-| Solidity (`^0.8.20`) | Smart contract |
-| Remix IDE | Compile, deploy and test the contract |
-| Ganache Desktop | Local Ethereum blockchain and funded test accounts |
-| MetaMask | Wallet connection and transaction approvals |
-| Ethers.js v6 | Read contract data and send transactions from JavaScript |
-| HTML, CSS, JavaScript | Frontend |
-| VS Code Live Server | Run the website locally |
-
-## Files
-
-```text
-SimpleAuctionDApp/
-├── auction.sol
-├── index.html
-├── style.css
-├── app.js
-├── README.md
-├── TEST_RESULTS.md
-└── screenshots/
-    ├── 01_compilation.png
-    ├── ...
-    └── additional/       (remaining original screenshots)
-```
-
-## Smart contract
+### Smart contract functions
 
 The contract is in [`auction.sol`](auction.sol).
 
@@ -66,7 +38,62 @@ The refund logic uses a `mapping(address => uint256)` to track what each bidder 
 
 The contract clears the refund amount before transferring ETH, and it marks the seller's proceeds as withdrawn before paying them. This prevents a successful withdrawal from being repeated. ETH amounts are stored in wei internally; the frontend uses `ethers.parseEther()` and `ethers.formatEther()` so users can work in ETH.
 
-## Network and deployment
+## 2. Steps required to execute the application
+
+### Requirements and tools
+
+| Tool | Use |
+|---|---|
+| Solidity (`^0.8.20`) | Smart contract |
+| Remix IDE | Compile, deploy and test the contract |
+| Ganache Desktop | Local Ethereum blockchain and funded test accounts |
+| MetaMask | Wallet connection and transaction approvals |
+| Ethers.js v6 | Read contract data and send transactions from JavaScript |
+| HTML, CSS, JavaScript | Frontend |
+| VS Code Live Server | Run the website locally |
+
+### Setup and deployment steps
+
+1. Start Ganache Desktop. Check the RPC URL and chain ID in its settings.
+2. In Remix, open `auction.sol` and compile it using Solidity 0.8.20 or newer (0.8.x). I used the **London EVM version** to avoid compatibility issues with Ganache Desktop.
+3. In **Deploy & Run Transactions**, choose **Custom – External HTTP Provider** and enter the Ganache RPC URL. Select the Ganache account that will act as the seller.
+4. Deploy `Auction` with an item name such as `Football Jersey` and starting bid `1`. Keep Remix's deployment **Value at 0 ETH**. The constructor takes the starting price in *whole ETH* and converts it to wei inside the contract.
+5. In MetaMask, add a custom network with Ganache's RPC URL and chain ID. Import Ganache's development accounts for the seller and two bidders. These accounts come funded with fake ETH.
+6. Copy the deployed contract's address from Remix into the `contractAddress` constant at the top of [`app.js`](app.js). If your chain ID differs from `1337`, update `GANACHE_CHAIN_ID` there as well.
+7. Open the folder in VS Code and run `index.html` with **Live Server**. Connect MetaMask and refresh the auction details.
+
+Ethers.js is loaded from a CDN in `index.html`, so an internet connection is needed to load that script even though Ganache itself runs locally.
+
+**Don't upload Ganache private keys or seed phrases to GitHub.** The repository only needs the contract address, network details and source files.
+
+### Connecting MetaMask and interacting with the contract
+
+1. Open MetaMask and switch to the **Ganache Local** network (RPC and chain ID given below).
+
+2. Import only Ganache's **local development accounts** for the seller and two bidders; never import a personal wallet's secret key into Ganache or commit any secret key to GitHub.
+
+3. Start the frontend with VS Code **Live Server**, then click **Connect MetaMask** and approve access.
+
+4. Click **Refresh Details** to read auction state. Switch to a bidder account to enter an amount in ETH and click **Place Bid**; confirm the transaction in MetaMask.
+
+5. When another bidder outbids you, use **Withdraw Refund**. Switch to the seller account to use **End Auction** and then **Withdraw Proceeds**.
+
+6. The frontend refreshes the auction details after successful transactions. If you start a new Ganache workspace or redeploy, update `contractAddress` in `app.js` first.
+
+### Example interaction
+
+The main workflow I tested was:
+
+1. Seller deploys the auction with a 1 ETH starting price.
+2. Alice bids 2 ETH through the frontend.
+3. Bob bids 3 ETH and becomes the highest bidder.
+4. Alice's refundable amount becomes 2 ETH, which she withdraws.
+5. The seller closes the auction. Bob remains recorded as the winner.
+6. The seller withdraws the winning 3 ETH.
+
+All payments here use **Ganache test ETH**, not real money. Wallet balances also change slightly due to transaction gas fees.
+
+## 3. Deployment network and smart contract address
 
 The screenshots were taken with the following Ganache setup:
 
@@ -81,36 +108,11 @@ The screenshots were taken with the following Ganache setup:
 
 **Note:** This address belongs to a local Ganache deployment that has already finished. To run a new auction, deploy the contract again and replace the address in `app.js`. It is not a public Sepolia or Mainnet deployment.
 
-### Running the project
+## 4. Test cases for valid, invalid, and unauthorised inputs
 
-1. Start Ganache Desktop. Check the RPC URL and chain ID in its settings.
-2. In Remix, open `auction.sol` and compile it using Solidity 0.8.20 or newer (0.8.x). I used the **London EVM version** to avoid compatibility issues with Ganache Desktop.
-3. In **Deploy & Run Transactions**, choose **Custom – External HTTP Provider** and enter the Ganache RPC URL. Select the Ganache account that will act as the seller.
-4. Deploy `Auction` with an item name such as `Football Jersey` and starting bid `1`. Keep Remix's deployment **Value at 0 ETH**. The constructor takes the starting price in *whole ETH* and converts it to wei inside the contract.
-5. In MetaMask, add a custom network with Ganache's RPC URL and chain ID. Import Ganache's development accounts for the seller and two bidders. These accounts come funded with fake ETH.
-6. Copy the deployed contract's address from Remix into the `contractAddress` constant at the top of [`app.js`](app.js). If your chain ID differs from `1337`, update `GANACHE_CHAIN_ID` there as well.
-7. Open the folder in VS Code and run `index.html` with **Live Server**. Connect MetaMask and refresh the auction details.
+I tested the Solidity functions in **Remix VM** and the end-to-end application using **Ganache, MetaMask and the frontend**. The observed results are listed below.
 
-Ethers.js is loaded from a CDN in `index.html`, so an internet connection is needed to load that script even though Ganache itself runs locally.
-
-**Don't upload Ganache private keys or seed phrases to GitHub.** The repository only needs the contract address, network details and source files.
-
-## Demo sequence
-
-The main workflow I tested was:
-
-1. Seller deploys the auction with a 1 ETH starting price.
-2. Alice bids 2 ETH through the frontend.
-3. Bob bids 3 ETH and becomes the highest bidder.
-4. Alice's refundable amount becomes 2 ETH, which she withdraws.
-5. The seller closes the auction. Bob remains recorded as the winner.
-6. The seller withdraws the winning 3 ETH.
-
-All payments here use **Ganache test ETH**, not real money. Wallet balances also change slightly due to transaction gas fees.
-
-## Tests and results
-
-I first tested the Solidity functions directly in **Remix VM**, then ran the full auction through the frontend using **Ganache and MetaMask**.
+### Valid inputs and successful operations
 
 | Test | Expected | Observed |
 |---|---|---|
@@ -119,87 +121,121 @@ I first tested the Solidity functions directly in **Remix VM**, then ran the ful
 | Alice withdraws refund | Alice gets 2 ETH back and refund becomes zero | Passed |
 | Seller closes auction | Status changes to Closed | Passed |
 | Seller withdraws proceeds | Seller receives winning 3 ETH | Passed |
+
+### Invalid inputs and repeated operations
+
+| Test | Expected | Observed |
+|---|---|---|
 | Bid below starting price | Rejected | `Below starting bid` |
 | Bid after closure | Rejected | `Auction has ended` |
-| Non-seller ends auction | Rejected | `Only seller can end auction` |
 | Seller withdraws twice | Rejected | `Already withdrawn` |
 | Bidder withdraws refund twice | Rejected | `No refund available` |
 
-The failed transaction screenshots with readable `require` messages are from Remix VM. When I repeated some failures using Remix connected to Ganache, Remix sometimes displayed a gas estimation error instead of the original message. Those tests are described separately in [TEST_RESULTS.md](TEST_RESULTS.md). A failed gas estimate is not the same as a mined failed transaction.
+### Unauthorised operation
 
-## Screenshots
+| Test | Expected | Observed |
+|---|---|---|
+| Non-seller ends auction | Rejected | `Only seller can end auction` |
 
-The images below are from the actual project tests. More screenshots are kept in [`screenshots/`](screenshots/).
+The failed-operation screenshots with readable Solidity revert reasons are from Remix VM. When I repeated some invalid operations through Remix connected to Ganache, Remix sometimes displayed a gas-estimation or error-formatting warning instead of the original revert string. A failed gas estimate is not necessarily a mined failed transaction.
 
-### Compilation and deployment
+For more test details, see [TEST_RESULTS.md](TEST_RESULTS.md).
 
-Remix Solidity compilation:
+## 5. Screenshots
+
+The screenshots below follow the six evidence categories listed in the assignment instructions. All images are stored under [`screenshots/`](screenshots/).
+
+### 1. Smart contract compilation
+
+Solidity compilation in Remix:
 
 ![Solidity compilation in Remix](screenshots/01_compilation.png)
 
-Auction contract deployed to Ganache:
+### 2. Smart contract deployment
+
+Auction deployment in Remix:
 
 ![Auction deployment in Remix](screenshots/02_remix_ganache_deployment.png)
 
-Ganache contract creation transaction:
+Contract creation transaction in Ganache:
 
-![Ganache contract transaction](screenshots/03_ganache_contract_creation.png)
+![Contract creation transaction in Ganache](screenshots/03_ganache_contract_creation.png)
 
-### Frontend and MetaMask
+### 3. MetaMask wallet connection
 
-Frontend connected to the MetaMask seller account:
+Frontend connected to MetaMask:
 
-![Frontend wallet connection](screenshots/05_wallet_connected_frontend.png)
+![Frontend connected to MetaMask](screenshots/05_wallet_connected_frontend.png)
 
-Auction details read from the deployed contract:
+### 4. Successful transactions
 
-![Auction details in frontend](screenshots/06_onchain_data_frontend.png)
+Alice places a 2 ETH bid:
 
-### Successful transactions
+![Alice places a 2 ETH bid](screenshots/08_alice_successful_bid.png)
 
-Alice's 2 ETH bid:
+Bob becomes the highest bidder with 3 ETH:
 
-![Alice successfully bids](screenshots/08_alice_successful_bid.png)
+![Bob becomes the highest bidder with 3 ETH](screenshots/09_bob_successful_bid.png)
 
-Bob's 3 ETH bid:
+Alice's refund available:
 
-![Bob becomes highest bidder](screenshots/09_bob_successful_bid.png)
+![Alice's refund available](screenshots/10_alice_refund_available.png)
 
-Alice's refund before and after withdrawal:
+Alice withdraws her refund:
 
-![Alice refund available](screenshots/10_alice_refund_available.png)
-
-![Alice refund completed](screenshots/11_alice_refund_completed.png)
+![Alice withdraws her refund](screenshots/11_alice_refund_completed.png)
 
 Auction closed:
 
 ![Auction closed](screenshots/12_auction_closed.png)
 
-Seller receives 3 ETH:
+Seller receives winning bid:
 
-![Seller receives proceeds](screenshots/13_seller_proceeds_received.png)
+![Seller receives winning bid](screenshots/13_seller_proceeds_received.png)
 
-### Rejected transactions (Remix VM)
+### 5. Failed transactions
 
-Bid below the starting price:
+Bid below starting price rejected:
 
 ![Bid below starting price rejected](screenshots/14_invalid_below_starting_bid.png)
 
-Bid after auction closure:
+Bid after closure rejected:
 
 ![Bid after closure rejected](screenshots/15_invalid_bid_after_closure.png)
 
-Unauthorized attempt to end the auction:
+Non-seller cannot close auction:
 
-![Only seller can end auction](screenshots/16_unauthorized_auction_closure.png)
+![Non-seller cannot close auction](screenshots/16_unauthorized_auction_closure.png)
 
-Repeated seller withdrawal:
+Seller cannot withdraw twice:
 
-![Proceeds cannot be withdrawn twice](screenshots/17_invalid_double_withdrawal.png)
+![Seller cannot withdraw twice](screenshots/17_invalid_double_withdrawal.png)
 
-Repeated refund withdrawal:
+Bidder cannot withdraw refund twice:
 
-![Refund cannot be withdrawn twice](screenshots/18_invalid_double_refund.png)
+![Bidder cannot withdraw refund twice](screenshots/18_invalid_double_refund.png)
+
+### 6. Blockchain data displayed through the user interface
+
+Auction information retrieved from contract:
+
+![Auction information retrieved from contract](screenshots/06_onchain_data_frontend.png)
+
+## 6. Repository files
+
+```text
+SimpleAuctionDApp/
+├── auction.sol
+├── index.html
+├── style.css
+├── app.js
+├── README.md
+├── TEST_RESULTS.md
+└── screenshots/
+    ├── 01_compilation.png
+    ├── ...
+    └── additional/       (remaining original screenshots)
+```
 
 ## Notes
 
