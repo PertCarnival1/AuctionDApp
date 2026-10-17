@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple Auction DApp</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>Simple Auction DApp</h1>
+
+    <button id="connectBtn">Connect MetaMask</button>
+    <p id="walletAddress">Wallet not connected</p>
+    <p id="message"></p>
+
+    <hr />
+
+    <h2>Auction Details</h2>
+    <p>Item: <span id="itemName">-</span></p>
+    <p>Starting Bid: <span id="startingBid">-</span></p>
+    <p>Highest Bid: <span id="highestBid">-</span></p>
+    <p>Highest Bidder: <span id="highestBidder">-</span></p>
+    <p>Status: <span id="auctionStatus">-</span></p>
+
+    <button id="refreshBtn">Refresh Details</button>
+
+    <hr />
+
+    <h2>Place a Bid</h2>
+    <input
+      type="number"
+      id="bidAmount"
+      placeholder="Bid amount in ETH"
+      min="0"
+      step="any"
+    />
+    <button id="bidBtn">Place Bid</button>
+
+    <hr />
+
+    <h2>Withdraw Refund</h2>
+    <p>Available Refund: <span id="refundAmount">-</span></p>
+    <button id="refundBtn">Withdraw Refund</button>
+
+    <hr />
+
+    <h2>Seller Controls</h2>
+    <button id="endBtn">End Auction</button>
+    <button id="withdrawBtn">Withdraw Proceeds</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.umd.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
