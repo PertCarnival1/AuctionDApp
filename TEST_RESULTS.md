@@ -36,9 +36,3 @@ The Ganache demo instance shown in the evidence is **already closed and settled*
 ### Why some Ganache error messages were less clear
 
 During the later tests performed via Remix's *external HTTP provider* connected to Ganache, the RPC/error-handling interface sometimes showed **`Gas estimation failed`**, **`missing revert data`**, or a Remix JavaScript exception (`error.indexOf is not a function`). These messages are not evidence that the Solidity validation failed; they appeared when the attempted operation could not proceed. The Remix VM images above contain the clearest `require` messages. **A preflight gas-estimation failure should not be presented as a mined failed transaction.**
-
-## Additional evidence and test limits
-
-The full screenshot set submitted for project packaging contained **38 screenshots**. The clearest are renamed in `screenshots/` and embedded in `README.md`, while the remaining originals are preserved in `screenshots/additional/`.
-
-Not all theoretically possible edge cases have been tested. In particular, this coursework test record is not a professional Solidity security audit and does not verify physical delivery of an item.
