@@ -1,0 +1,17 @@
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Local dependencies and logs
+node_modules/
+*.log
+
+# Secrets and local wallet exports (never commit)
+.env
+.env.*
+*.pem
+*.key
+*private-key*
+*mnemonic*
+*seed-phrase*
